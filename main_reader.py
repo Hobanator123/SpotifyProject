@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# from mfrc522 import SimpleMFRC522
-# import RPi.GPIO as GPIO
+from mfrc522 import SimpleMFRC522
+import RPi.GPIO as GPIO
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import time
@@ -125,7 +125,7 @@ functional_rfids = {
 
 while True:
     try:
-        # reader = SimpleMFRC522()
+        reader = SimpleMFRC522()
         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
                                                        client_secret=CLIENT_SECRET,
                                                        redirect_uri="http://localhost:8080",
@@ -134,7 +134,7 @@ while True:
         # create an infinite while loop that will always be waiting for a new scan
         while True:
             print("Waiting for record scan...")
-            rf_id = input('ID: ')
+            rf_id = reader.read()[0]
             print("Card Value is:", rf_id)
             sp.transfer_playback(device_id=DEVICE_ID, force_play=True)
             
@@ -149,8 +149,8 @@ while True:
                 queue_list.append(rf_id)
                 while listening_to_queue:
                     start = time.perf_counter()
-                    # queue_reader = SimpleMFRC522()
-                    rf_id = input('ID: ')
+                    queue_reader = SimpleMFRC522()
+                    rf_id = reader.read()[0]
                     end = time.perf_counter()
                     time_delta  = end - start
                     if time_delta > 5:
@@ -193,4 +193,4 @@ while True:
 
     finally:
         print("Cleaning  up...")
-        # GPIO.cleanup()
+        GPIO.cleanup()
